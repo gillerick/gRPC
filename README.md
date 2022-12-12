@@ -78,11 +78,74 @@ the community lacks information about best practices, workarounds and success st
   optional string email = 3;
   }
   ```
+- The types above are _scalar_ types and match with Go (and other languages) types. This is shown in the table below:
+
+| **Go type** | **Protobuf type** |
+|-------------|-------------------|
+| float32     | float             |
+| float64     | double            |
+| uint32      | fixed32           |
+| uint64      | fixed64           |
+| []byte      | bytes             |
+
+#### Enumerations and repeated fields
+
+- Enumerations provide the ordering of numbers for a given set of elements, the default order of values being from zero
+  to _n_. The snippet below shows an example of a `proto3` enum.
+
+  ```protobuf
+  message Schedule{
+    enum Days{
+      SUNDAY = 0;
+      MONDAY = 1;
+      TUESDAY = 2;
+      WEDNESDAY = 3;
+      THURSDAY = 4;
+      FRIDAY = 5;
+      SATURDAY = 6;
+    }
+  }
+  ```
+- In order to assign the same values for multiple enumeration members, the option `allow_alias` is used as such:
+  ```protobuf
+  enum EnumAllowingAlias{
+    option allow_alias = true;
+    UNKNOWN = 0;
+    STARTED = 1;
+    RUNNING = 1;
+  }
+  ```
+- In the above example, `STARTED` and `RUNNING` both have a 1 tag. This means that both can have the same
+  value in the data and in order to remove duplicated values, we should also remove
+  the `allow_alias` option. Otherwise, the proto compiler throws an error.
+- `Repeated` fields are the fields in the message of a protocol buffer that represent a list of items. This allows us to
+  define an array/list of elements of a particular type.
+  ```protobuf
+  message Site{
+    string url = 1;
+    int32 latency = 2;
+    repeated string proxies = 3;
+  }
+  ```
+- In the example above, the value of proxies would be something like `["100.104.112.10","100.104.112.12"]`
+- It is also possible to have nested objects in protobufs. This is shown in the example below:
+  ```protobuf
+  message Site{
+    string url = 1;
+    int32 latenecy = 2;
+    repeated Proxy proxies = 3;
+  }
+  
+  message Proxy{
+    string url = 1;
+    int32 latency = 2
+  }
+  ```
 
 ### HTTP/2 as the transport protocol
 
-Unlike text-based HTTP/1.1, HTTP/2 communication is divided into smaller messages and framed in binary format making
-sending and receiving messages compact and efficient.
+- Unlike text-based HTTP/1.1, HTTP/2 communication is divided into smaller messages and framed in binary format making
+  sending and receiving messages compact and efficient.
 
 ![](resources/images/binary-framing.png)
 
